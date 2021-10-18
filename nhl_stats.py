@@ -120,14 +120,14 @@ def get_season_stats(player, team, syear):
 
     else:
 
-      retframe = {'assists': np.nan,
+      retframe = {'assists': 0,
                 'blocked': np.nan,
                 'evenTimeOnIce': '',
                 'faceOffPct': np.nan,
                 'faceOffWins': np.nan,
                 'faceoffTaken': np.nan,
                 'giveaways': np.nan,
-                'goals': np.nan,
+                'goals': 0,
                 'hits': np.nan,
                 'penaltyMinutes': np.nan,
                 'plusMinus': np.nan,
