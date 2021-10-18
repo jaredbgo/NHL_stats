@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import sys
-
+import difflib
 #import matplotlib.pyplot as plt
 
 # input a player
@@ -28,8 +28,18 @@ def get_season_stats(player, team, syear):
 
   roster = requests.get('https://statsapi.web.nhl.com/api/v1/teams/{}/roster'.format(teamdict['id']), timeout=15).json()
 
-  if player not in [each['person']['fullName'] for each in roster['roster']]:
-    raise Exception('bad player name: is this player on this team?')
+  rosterplayers = [each['person']['fullName'] for each in roster['roster']]
+  print(rosterplayers)
+
+  if player not in rosterplayers:
+    close_matches = difflib.get_close_matches(player, rosterplayers)
+
+    if len(close_matches) == 0:
+      emsg = 'bad player name: is this player on this team?'
+    else:
+      potential_player = close_matches[0]
+      emsg = 'bad player name: did you mean {}?'.format(potential_player)
+    raise Exception(emsg)
 
 
   playerdict = next(item for item in roster['roster'] if item['person']["fullName"] == player)
