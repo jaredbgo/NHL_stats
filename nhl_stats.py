@@ -29,22 +29,8 @@ def get_season_stats(player, team, syear):
   roster = requests.get('https://statsapi.web.nhl.com/api/v1/teams/{}/roster'.format(teamdict['id']), timeout=15).json()
 
   rosterplayers = [each['person']['fullName'] for each in roster['roster']]
-  print(rosterplayers)
-
-  if player not in rosterplayers:
-    close_matches = difflib.get_close_matches(player, rosterplayers)
-
-    if len(close_matches) == 0:
-      emsg = 'bad player name: is this player on this team?'
-    else:
-      potential_player = close_matches[0]
-      emsg = 'bad player name: did you mean {}?'.format(potential_player)
-    raise Exception(emsg)
-
-
-  playerdict = next(item for item in roster['roster'] if item['person']["fullName"] == player)
-
-  playerid = playerdict['person']['id']
+  
+  #print(rosterplayers)
 
   #print(teamdict)
   #print(playerdict)
@@ -57,6 +43,54 @@ def get_season_stats(player, team, syear):
 
   if game_ids == []:
     raise Exception('Season has not started')
+
+  if player in rosterplayers:
+
+    playerdict = next(item for item in roster['roster'] if item['person']["fullName"] == player)
+
+    playerid = playerdict['person']['id']
+
+  else:
+
+    close_matches = difflib.get_close_matches(player, rosterplayers)
+
+    if len(close_matches) > 0:
+      potential_player = close_matches[0]
+      emsg = 'bad player name: did you mean {}?'.format(potential_player)
+      raise Exception(emsg)
+
+    first_game = requests.get('https://statsapi.web.nhl.com/api/v1/game/{}/boxscore'.format(game_ids[0]['id']), timeout=15).json()
+    first_team_game = first_game['teams'][game_ids[0]['host_status']]
+
+    historic_players = [] 
+
+    for each in first_team_game['players'].keys():
+      historic_players.append(first_team_game['players'][each])
+
+    historic_player_list = [{'name': each['person']['fullName'], 'id': each['person']['id'], 'jerseyNumber': each['jerseyNumber']} for each in historic_players]
+
+    historic_rosterplayers = [each['name'] for each in historic_player_list]
+    
+    if player in historic_rosterplayers:
+
+      playerdict =  next(item for item in historic_player_list if item['name'] == player)
+      playerid = playerdict['id']
+
+    else:
+
+
+      close_matches = difflib.get_close_matches(player, historic_rosterplayers)
+
+      if len(close_matches) > 0:
+        potential_player = close_matches[0]
+        emsg = 'bad player name: did you mean {}?'.format(potential_player)
+        raise Exception(emsg)
+
+      else:
+
+        emsg = 'bad player name: is this player on this team?'
+        raise Exception(emsg)
+
   
   
   season = []
