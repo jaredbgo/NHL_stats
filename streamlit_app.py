@@ -17,7 +17,7 @@ sideb = st.sidebar
 sideb.title('NHL Stats')
 sideb.write('Choose a player, team, and season below \n\n\n\n')
 
-chosen_player = sideb.text_input("Input a player's name", 'Nathan MacKinnon')
+chosen_player = sideb.text_input("Input a player's name", '')
 chosen_team = sideb.selectbox("Choose the player's team", sorted(teamnames), index=0)
 chosen_year = sideb.selectbox("Choose a season", seasons_strings, index=1)
 
